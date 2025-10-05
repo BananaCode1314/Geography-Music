@@ -1,5 +1,11 @@
+// src/components/WorldMap.jsx
 import React, { useMemo, useRef } from "react";
-import { ComposableMap, Geographies, Geography, ZoomableGroup } from "react-simple-maps";
+import {
+  ComposableMap,
+  Geographies,
+  Geography,
+  ZoomableGroup,
+} from "react-simple-maps";
 
 const GEO_URL =
   "https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson";
@@ -8,7 +14,12 @@ function getIso3(geo) {
   return geo.id || geo.properties?.ISO_A3 || geo.properties?.iso_a3 || "";
 }
 function getName(geo) {
-  return geo.properties?.name || geo.properties?.NAME || geo.properties?.ADMIN || "Unknown";
+  return (
+    geo.properties?.name ||
+    geo.properties?.NAME ||
+    geo.properties?.ADMIN ||
+    "Unknown"
+  );
 }
 
 export default function WorldMap({
@@ -16,10 +27,10 @@ export default function WorldMap({
   selectedCode,
   position,
   setPosition,
-  // quiz props
+  // quiz support
   quizCorrectCode,
   quizReveal = false,
-  // NEW: send the country list up once
+  // send country list once
   onGeographyList,
 }) {
   const styles = useMemo(
@@ -30,23 +41,26 @@ export default function WorldMap({
     []
   );
 
-  // ensure we only send the list once
   const sentListRef = useRef(false);
 
   return (
-    <ComposableMap projectionConfig={{ scale: 155 }}>
+    <ComposableMap projectionConfig={{ scale: 160 }}>
       <ZoomableGroup
-        center={position?.coordinates}
-        zoom={position?.zoom ?? 1}
+        center={position.coordinates}
+        zoom={position.zoom}
         minZoom={1}
         maxZoom={8}
-        onMoveEnd={
-          setPosition ? ({ coordinates, zoom }) => setPosition({ coordinates, zoom }) : undefined
+        onMoveEnd={({ coordinates, zoom }) =>
+          setPosition({ coordinates, zoom })
         }
       >
         <Geographies geography={GEO_URL}>
           {({ geographies }) => {
-            if (onGeographyList && !sentListRef.current && geographies?.length) {
+            if (
+              onGeographyList &&
+              !sentListRef.current &&
+              geographies?.length
+            ) {
               onGeographyList(
                 geographies.map((g) => ({ code: getIso3(g), name: getName(g) }))
               );
@@ -66,7 +80,11 @@ export default function WorldMap({
                   onClick={() => onSelectCountry?.({ code, name })}
                   style={{
                     default: {
-                      fill: isCorrect ? "#06d6a0" : isSelected ? "#ffd166" : "#83c5be",
+                      fill: isCorrect
+                        ? "#06d6a0"
+                        : isSelected
+                        ? "#ffd166"
+                        : "#83c5be",
                       stroke: "#2b2d42",
                       strokeWidth: 0.5,
                       outline: "none",
